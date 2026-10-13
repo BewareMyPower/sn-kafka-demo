@@ -29,10 +29,10 @@ uv sync
 uv run create_topic.py api-key-1.txt --topic my-topic --partitions 3
 ```
 
-发送消息：
+发送消息（按固定速率发送，`--rate` 每秒条数、`--size` 消息字节数、`--duration` 运行秒数；到时后停止发送并等待全部投递完成）：
 
 ```bash
-uv run producer.py api-key-1.txt --topic my-topic
+uv run producer.py api-key-1.txt --topic my-topic --rate 100 --size 1024 --duration 30
 ```
 
 开启 librdkafka debug 日志（输出到 stderr）：
@@ -42,12 +42,12 @@ uv run producer.py api-key-1.txt --debug            # 全部类别
 uv run producer.py api-key-1.txt --debug broker,topic  # 指定类别
 ```
 
-producer 默认开启幂等（`enable.idempotence`），无需额外配置。
+producer 显式开启幂等：`enable.idempotence=true`（librdkafka 默认为 false，开启后会自动调整 `acks=all`、`max.in.flight.requests.per.connection=5`、`retries=INT32_MAX`）。
 
-发送成功时输出：
+运行结束输出统计：
 
 ```
-Produced to: my-topic [0] @ 0
+sent=3000 delivered=3000 failed=0 size=1024B elapsed=30.05s
 ```
 
 若凭据未授权对应 topic，则输出 `Failed to deliver message: Broker: Topic authorization failed`。
