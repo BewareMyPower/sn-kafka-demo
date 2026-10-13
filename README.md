@@ -1,6 +1,6 @@
 # sn-kafka-demo
 
-使用 [confluent-kafka](https://github.com/confluentinc/confluent-kafka-python) 向 StreamNative Cloud Kafka 集群创建 topic、发送消息的示例。
+使用 [confluent-kafka](https://github.com/confluentinc/confluent-kafka-python) 向 StreamNative Cloud Kafka 集群创建 topic、发送与消费消息的示例。
 
 ## 环境要求
 
@@ -18,7 +18,7 @@ uv sync
 ## 配置
 
 - SASL 凭据从文件读取：把 API key/JWT 保存到文本文件（单行即可），运行时通过命令行参数传入文件路径。
-- topic 名称（两个脚本）、分区数与副本数（`create_topic.py`）均通过命令行参数配置。
+- topic 名称（三个脚本均有）、分区数与副本数（`create_topic.py`）、消费组与起始位点（`consumer.py`）均通过命令行参数配置。
 - bootstrap servers、service account 直接写在脚本中，可按需修改。
 
 ## 运行
@@ -51,3 +51,21 @@ sent=3000 delivered=3000 failed=0 size=1024B elapsed=30.05s
 ```
 
 若凭据未授权对应 topic，则输出 `Failed to deliver message: Broker: Topic authorization failed`。
+
+消费消息（`--topic` topic、`--group` 消费组、`--earliest` 无提交位点时从头开始消费（默认 latest）、`--report-every` 每 N 条打印一次统计、`--idle-timeout` 无新消息多少秒后校验各分区 high watermark 判定追上最新、`--max-idle` 兜底强制停止秒数）：
+
+```bash
+uv run consumer.py api-key-1.txt --topic my-topic --group my-group --earliest --report-every 1000
+```
+
+周期性统计（累计条数、累计 size、至今耗时、offset 范围）：
+
+```
+count=1000 size=1024000B elapsed=3.21s offsets=0..999
+```
+
+追上最新后停止，输出总耗时、总 offset 范围与总 size：
+
+```
+consumed=1234 size=1263616B elapsed=10.50s offsets=0..1233
+```
