@@ -18,16 +18,10 @@ uv sync
 ## 配置
 
 - SASL 凭据从文件读取：把 API key/JWT 保存到文本文件（单行即可），运行时通过命令行参数传入文件路径。
-- topic 名称（三个脚本均有）、分区数与副本数（`create_topic.py`）、消费组与起始位点（`consumer.py`）均通过命令行参数配置。
+- topic 名称（三个脚本均有）、消费组与起始位点（`consumer.py`）均通过命令行参数配置。
 - bootstrap servers、service account 直接写在脚本中，可按需修改。
 
 ## 运行
-
-创建 topic：
-
-```bash
-uv run create_topic.py api-key-1.txt --topic my-topic --partitions 3
-```
 
 发送消息（按固定速率发送，`--rate` 每秒条数、`--size` 消息字节数、`--duration` 运行秒数；到时后停止发送并等待全部投递完成）：
 
